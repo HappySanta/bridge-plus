@@ -15,6 +15,6 @@ jobs:
         # Defaults to the user or organization that owns the workflow file
         scope: '@happysanta' 
     - run: yarn
-    - run: yarn publish --access public --new-version $(git describe --tags)
+    - run: yarn publish --no-git-tag-version --access public --new-version $(git describe --tags)
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
