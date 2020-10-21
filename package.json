@@ -1,6 +1,6 @@
 {
-  "name": "bridge-plus",
-  "version": "1.0.0",
+  "name": "@happysanta/bridge-plus",
+  "version": "0.0.1",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "jsnext:main": "src/index.ts",
