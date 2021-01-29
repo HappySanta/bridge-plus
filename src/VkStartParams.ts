@@ -1,4 +1,4 @@
-export type Dict<T> = { [key: string]: T }
+export type Dict<T> = { [key: string]: T };
 
 export class VkStartParams {
   static MOBILE_IPHONE_MESSENGER = 'mobile_iphone_messenger';
@@ -75,7 +75,6 @@ export class VkStartParams {
   isDesktop() {
     return this.getValue('vk_platform') === VkStartParams.DESKTOP_WEB;
   }
-
 
   /**
    * Мобильные клиенты
@@ -207,28 +206,27 @@ export class VkStartParams {
     return (this.getValue('sign') || '').toString();
   }
 
+  static LANG_RUS = 'ru';
+  static LANG_UKR = 'uk';
+  static LANG_BEL = 'be';
+  static LANG_ENG = 'en';
+  static LANG_ESP = 'es';
+  static LANG_FIN = 'fi';
+  static LANG_DEU = 'de';
+  static LANG_ITA = 'it';
 
-  static LANG_RUS = 'ru'
-  static LANG_UKR = 'uk'
-  static LANG_BEL = 'be'
-  static LANG_ENG = 'en'
-  static LANG_ESP = 'es'
-  static LANG_FIN = 'fi'
-  static LANG_DEU = 'de'
-  static LANG_ITA = 'it'
-
-  static VIEWER_GROUP_ROLE_ADMIN = 'admin'
-  static VIEWER_GROUP_ROLE_EDITOR = 'editor'
-  static VIEWER_GROUP_ROLE_MODERATOR = 'moder'
-  static VIEWER_GROUP_ROLE_MEMBER = 'member'
-  static VIEWER_GROUP_ROLE_NOBODY = 'none'
+  static VIEWER_GROUP_ROLE_ADMIN = 'admin';
+  static VIEWER_GROUP_ROLE_EDITOR = 'editor';
+  static VIEWER_GROUP_ROLE_MODERATOR = 'moder';
+  static VIEWER_GROUP_ROLE_MEMBER = 'member';
+  static VIEWER_GROUP_ROLE_NOBODY = 'none';
 
   /**
    * vk_user_id (integer) — идентификатор пользователя, запустившего сервис.
    * @returns {number}
    */
   get userId() {
-    return this.getIntValue('vk_user_id')
+    return this.getIntValue('vk_user_id');
   }
 
   /**
@@ -236,32 +234,28 @@ export class VkStartParams {
    * @returns {number}
    */
   get appId() {
-    return this.getIntValue('vk_app_id')
+    return this.getIntValue('vk_app_id');
   }
-
 
   get language() {
-    return this.getStrValue('vk_language')
+    return this.getStrValue('vk_language');
   }
 
-
   get accessTokenSettings() {
-    return this.getStrValue('vk_access_token_settings')
+    return this.getStrValue('vk_access_token_settings');
   }
 
   /**
    * @param {boolean} value
    */
 
-
   /**
    * group_id (integer) — идентификатор сообщества, со страницы которого было запущено приложение
    * @returns {number}
    */
   get groupId() {
-    return this.getIntValue('vk_group_id')
+    return this.getIntValue('vk_group_id');
   }
-
 
   /**
    * vk_viewer_group_role (string) — роль пользователя в сообществе, из которого запущено приложение
@@ -273,9 +267,8 @@ export class VkStartParams {
    * @returns {string}
    */
   get viewerGroupRole() {
-    return this.getStrValue('vk_viewer_group_role')
+    return this.getStrValue('vk_viewer_group_role');
   }
-
 
   /**
    * Платформа, из которой запущен сервис
@@ -286,7 +279,7 @@ export class VkStartParams {
    * @returns {string}
    */
   get platform() {
-    return this.getStrValue('vk_platform')
+    return this.getStrValue('vk_platform');
   }
 
   /**
@@ -294,45 +287,43 @@ export class VkStartParams {
    * @returns {string}
    */
   get sign() {
-    return this.getStrValue('sign')
+    return this.getStrValue('sign');
   }
 
   get ref() {
-    return this.getStrValue('vk_ref')
+    return this.getStrValue('vk_ref');
   }
 
-
   isInGroup() {
-    return this.groupId && this.groupId > 0
+    return this.groupId && this.groupId > 0;
   }
 
   /**
    * @param {Boolean} value
    */
 
-
   isAdmin() {
-    return this.isInGroup() && this.viewerGroupRole === VkStartParams.VIEWER_GROUP_ROLE_ADMIN
+    return this.isInGroup() && this.viewerGroupRole === VkStartParams.VIEWER_GROUP_ROLE_ADMIN;
   }
 
   isModerator() {
-    return this.isInGroup() && this.viewerGroupRole === VkStartParams.VIEWER_GROUP_ROLE_MODERATOR
+    return this.isInGroup() && this.viewerGroupRole === VkStartParams.VIEWER_GROUP_ROLE_MODERATOR;
   }
 
   isEditor() {
-    return this.isInGroup() && this.viewerGroupRole === VkStartParams.VIEWER_GROUP_ROLE_EDITOR
+    return this.isInGroup() && this.viewerGroupRole === VkStartParams.VIEWER_GROUP_ROLE_EDITOR;
   }
 
   isMember() {
-    return this.isInGroup() && this.viewerGroupRole === VkStartParams.VIEWER_GROUP_ROLE_MEMBER
+    return this.isInGroup() && this.viewerGroupRole === VkStartParams.VIEWER_GROUP_ROLE_MEMBER;
   }
 
   isNobody() {
-    return (this.isInGroup() && this.viewerGroupRole === VkStartParams.VIEWER_GROUP_ROLE_NOBODY)
+    return this.isInGroup() && this.viewerGroupRole === VkStartParams.VIEWER_GROUP_ROLE_NOBODY;
   }
 
   isMobile() {
-    return this.platform !== 'desktop_web'
+    return this.platform !== 'desktop_web';
   }
 
   /**
@@ -340,9 +331,9 @@ export class VkStartParams {
    */
   getLangCode() {
     if (this.language === VkStartParams.LANG_UKR) {
-      return 'ua'
+      return 'ua';
     }
-    return this.language
+    return this.language;
   }
 }
 

@@ -1,13 +1,13 @@
-import {VkError, VkErrorTypes} from "./VkError";
-import {gp, prettyPrintAny} from "./helpers";
+import { VkError, VkErrorTypes } from './VkError';
+import { gp, prettyPrintAny } from './helpers';
 
 export function castToError(object: any, description: string) {
   if (object instanceof VkError) {
-    return object
+    return object;
   }
 
-  const error = new VkError(prettyPrintAny(object), VkErrorTypes.UNKNOWN_TYPE)
-  error.origin = object
+  const error = new VkError(prettyPrintAny(object), VkErrorTypes.UNKNOWN_TYPE);
+  error.origin = object;
 
   error.type = gp(object, 'error_type') || error.type;
 
@@ -25,9 +25,9 @@ export function castToError(object: any, description: string) {
       error.request_params = object.error_data.error_reason.request_params;
       error.type = VkErrorTypes.API_ERROR;
       if (Array.isArray(error.request_params)) {
-        error.request_params.forEach(node => {
+        error.request_params.forEach((node) => {
           if (node && node.key === 'method') {
-            error.message += ' \nmethod: ' + node.value;
+            error.message += ` \nmethod: ${ node.value}`;
           }
         });
       }
@@ -42,7 +42,7 @@ export function castToError(object: any, description: string) {
     }
   }
 
-  //iOS ошибка сети во время вызова GetAuthToken
+  // iOS ошибка сети во время вызова GetAuthToken
   if (gp(object, 'error_type') === 'auth_error' && gp(object, 'error_data.error_code') === 0) {
     error.type = VkErrorTypes.NETWORK_ERROR;
   }
@@ -58,7 +58,7 @@ export function castToError(object: any, description: string) {
   }
 
   // Пользователь что-то запретил (такое приходит когда на вебе отказаться от публикации записи на стене)
-  if (error.message.indexOf('Operation denied by user') !== -1) {
+  if (error.message.includes('Operation denied by user')) {
     error.type = VkErrorTypes.ACCESS_ERROR;
   }
 
@@ -96,12 +96,12 @@ export function castToError(object: any, description: string) {
     }
   }
   if (description) {
-    error.message += ' ' + description;
+    error.message += ` ${ description}`;
   }
-  error.message += ' type:'
-    + error.type
-    + ' code:'
-    + error.code
-    + ((object && object.message) ? ' msg:' + object.message : '');
+  error.message += ` type:${
+    error.type
+  } code:${
+    error.code
+  }${object && object.message ? ` msg:${ object.message}` : ''}`;
   return error;
 }
