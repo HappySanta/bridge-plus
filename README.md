@@ -28,6 +28,23 @@ BridgePlus.api("users.get", {})
   console.log(user.id)
 } )
 .catch(e => {
-  
+  // приходит типизрованная ошибка VkError
+  // e.type может быть один из типов VkErrorTypes UNKNOWN_TYPE client_error api_error network_error access_error
+})
+```
+
+Если требуется токен со специальными правами, то scope прав можно передать 3 аргументом
+
+```ts
+import {BridgePlus} from "@happysanta/bridge-plus";
+
+
+BridgePlus.api("friends.search", {}, "friends")
+.then( ({response}) => {
+  console.log(response)
+} )
+.catch(e => {
+  // приходит типизрованная ошибка VkError
+  // e.type может быть один из типов VkErrorTypes UNKNOWN_TYPE client_error api_error network_error access_error
 })
 ```
