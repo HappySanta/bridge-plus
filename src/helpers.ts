@@ -1,8 +1,4 @@
 
-export function normalize(str: string) {
-  return str.toString().split(',').map((x) => x.trim().toLowerCase()).sort().join(',');
-}
-
 export function isEqualScope(left: any, right: any) {
   /*
    * Возможно иногда не приходят scope с каких-то клиентов
@@ -14,7 +10,7 @@ export function isEqualScope(left: any, right: any) {
   if (typeof left !== 'string') {
     return true;
   }
-  return normalize(left) === normalize(right);
+  return normalizeScope(left) === normalizeScope(right);
 }
 
 export function delay(time: number): Promise<void> {

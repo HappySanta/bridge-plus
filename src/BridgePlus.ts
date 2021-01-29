@@ -36,6 +36,7 @@ function isApiParams(x: Record<string, string|number>): x is ApiParams {
   return !!x.v && !!x.access_token;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class BridgePlus {
   static startParams: VkStartParams | null = null;
   static startSearch = '';
@@ -269,10 +270,6 @@ export class BridgePlus {
   /**
    * Платёж VK Pay
    * Поднимает экран VK Pay для платежа
-   * @param {"pay-to-service"|"pay-to-user"|"pay-to-group"|"transfer-to-group"|"transfer-to-user"} action -
-   * @param {{amount:number,description:string,data:object,group_id:number}|{amount:number,description:string,user_id:number}|{description:string,user_id:number}|{description:string,group_id:number}} params - параметры платёжной формы VK Pay
-   * @param {number|null} appId
-   * @returns {Promise}
    */
   static openPayForm<ActionType extends VKPayActionType>(action: ActionType, params: VKPayActionParamsMap[ActionType], appId = null) {
     return BridgePlus.send('VKWebAppOpenPayForm', {

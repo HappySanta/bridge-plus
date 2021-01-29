@@ -20,7 +20,7 @@ describe('bridgeCall', () => {
 
   it('network error check', async (done) => {
     try {
-      await BridgePlus.callAPIMethod('network.fail', {});
+      await BridgePlus.callAPIMethod('network.fail', { access_token: 'test' });
       throw new Error('fail response');
     } catch (e) {
       expect(e).toBeInstanceOf(VkError);
@@ -32,7 +32,7 @@ describe('bridgeCall', () => {
   });
 
   it('call api method test', async (done) => {
-    const { response: [user] } = await BridgePlus.callAPIMethod('users.get', {});
+    const { response: [user] } = await BridgePlus.callAPIMethod('users.get', { access_token: 'test' });
     expect(user.id).toBe(100);
     expect(user.first_name).toBe('Test');
     done();
@@ -47,6 +47,7 @@ describe('bridgeCall', () => {
       expect(e.scheme).toBe('test-scheme-dark');
       BridgePlus.unsubscribe('VKWebAppUpdateConfig', fn);
       allow = false;
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       BridgePlus.init().then(async () => {
         await delay(50);
         done();

@@ -41,7 +41,7 @@ describe('queue', () => {
     const q2 = q.call(async () => {
       await delay(20);
       throw new Error('fake.exception');
-    }).catch((e) => 'F');
+    }).catch(() => 'F');
 
     const q3 = q.call(async () => {
       await delay(5);

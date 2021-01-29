@@ -2,6 +2,7 @@ import VkBridge from '@vkontakte/vk-bridge';
 import { AnyReceiveMethodName, VKBridgeEvent } from '@vkontakte/vk-bridge/dist/types/src/types/bridge';
 import { AnyEventName, BridgePlusEventCallback } from './extendedTypes';
 
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export default class VkObserver {
   static subjects: Array<{
     eventType: AnyEventName;
