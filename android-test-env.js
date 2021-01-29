@@ -28,6 +28,14 @@ class CustomEnvironment extends NodeEnvironment {
     };
 
     this.global.window.AndroidBridge = {
+      VKWebAppInit: (args) => {
+        response('VKWebAppUpdateConfig', {
+          scheme: 'test-scheme-dark',
+        });
+        setTimeout(() => {
+          response('VKWebAppInitResult', {}, getRequestId(args));
+        }, 1);
+      },
       FakeTestMethod: (args) => {
 
       },
@@ -40,7 +48,10 @@ class CustomEnvironment extends NodeEnvironment {
       VKWebAppCallAPIMethod: (args) => {
         const data = JSON.parse(args);
         if (data.method === 'network.fail') {
-          return response('VKWebAppCallAPIMethodFailed', { 'error_type': 'client_error', 'error_data': { 'error_code': 3, 'error_reason': 'Connection lost' } }, getRequestId(args));
+          return response('VKWebAppCallAPIMethodFailed', {
+            'error_type': 'client_error',
+            'error_data': { 'error_code': 3, 'error_reason': 'Connection lost' },
+          }, getRequestId(args));
         }
 
         if (data.method === 'users.get') {
@@ -51,34 +62,57 @@ class CustomEnvironment extends NodeEnvironment {
           }, getRequestId(args));
         }
 
+        if (data.method === 'users.getGetById') {
+          return response('VKWebAppCallAPIMethodResult', {
+            response: { id: data.params.id, first_name: 'Test' },
+          }, getRequestId(args));
+        }
+
+        if (data.method === 'users.getGetByIdFailNetwork') {
+          if (!this.failed_getGetByIdFailNetwork) {
+            this.failed_getGetByIdFailNetwork = true;
+            return response('VKWebAppCallAPIMethodFailed', {
+              'error_type': 'client_error',
+              'error_data': { 'error_code': 3, 'error_reason': 'Connection lost' },
+            }, getRequestId(args));
+          }
+          return response('VKWebAppCallAPIMethodResult', {
+            response: { id: data.params.id, first_name: 'Test' },
+          }, getRequestId(args));
+        }
+
         response('VKWebAppCallAPIMethodFailed', {
           'error_type': 'client_error',
           'error_data': { 'error_code': 9999, 'error_reason': 'Test env not support method: ' + data.method },
         }, getRequestId(args));
       },
-    };
+      VKWebAppGetAuthToken: args => {
 
-    // // Will trigger if docblock contains @my-custom-pragma my-pragma-value
-    // if (this.docblockPragmas['my-custom-pragma'] === 'my-pragma-value') {
-    //   // ...
-    // }
+        const data = JSON.parse(args);
+        if (data.scope === 'network-fail' && !this.failed) {
+          this.failed = true;
+          return response('VKWebAppGetAuthTokenFailed', {
+            'error_type': 'auth_error', 'error_data':
+              { 'error': '', 'error_description': '', 'error_reason': '' },
+          }, getRequestId(args));
+        }
+
+        response('VKWebAppGetAuthTokenResult', {
+          scope: data.scope,
+          access_token: 'test-token-12',
+        }, getRequestId(args));
+      },
+    };
   }
 
   async teardown() {
     this.global.someGlobalObject = null;
-    // await someTeardownTasks();
     await super.teardown();
   }
 
   runScript(script) {
     return super.runScript(script);
   }
-
-  // async handleTestEvent(event, state) {
-  //   if (event.name === 'test_start') {
-  //     // ...
-  //   }
-  // }
 }
 
 module.exports = CustomEnvironment;

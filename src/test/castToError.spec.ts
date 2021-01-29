@@ -1,5 +1,5 @@
 import {castToError} from "../castToError";
-import {VkError} from "../VkError";
+import {VkErrorTypes} from "../VkError";
 
 
 describe("castToError", () => {
@@ -9,7 +9,7 @@ describe("castToError", () => {
       name: "User reject request: VKWebAppGetEmail",
       raw: {"error_type": "client_error", "error_data": {"error_code": 4, "error_reason": "User denied"}},
       match: {
-        type: VkError.USER_REJECT,
+        type: VkErrorTypes.ACCESS_ERROR,
         code: 4,
       }
     },
@@ -26,7 +26,7 @@ describe("castToError", () => {
         }
       },
       match: {
-        type: VkError.NETWORK_ERROR,
+        type: VkErrorTypes.NETWORK_ERROR,
       }
     },
     {
@@ -34,7 +34,7 @@ describe("castToError", () => {
       name: "VKWebAppGetAuthToken without network",
       raw: {"error_type": "auth_error", "error_data": {"error": "", "error_description": "", "error_reason": ""}},
       match: {
-        type: VkError.NETWORK_ERROR,
+        type: VkErrorTypes.NETWORK_ERROR,
       }
     },
     {
@@ -42,7 +42,7 @@ describe("castToError", () => {
       name: "VKWebAppGetAuthToken without network",
       raw: {"error_type": "auth_error", "error_data": {"error_code": 0}},
       match: {
-        type: VkError.NETWORK_ERROR,
+        type: VkErrorTypes.NETWORK_ERROR,
       }
     },
     {
@@ -50,7 +50,7 @@ describe("castToError", () => {
       name: "Потеря соединения при выполнении запроса к апи",
       raw: {"error_type": "client_error", "error_data": {"error_code": 3, "error_reason": "Connection lost"}},
       match: {
-        type: VkError.NETWORK_ERROR,
+        type: VkErrorTypes.NETWORK_ERROR,
       }
     },
     {
@@ -65,7 +65,7 @@ describe("castToError", () => {
         }
       },
       match: {
-        type: VkError.NETWORK_ERROR,
+        type: VkErrorTypes.NETWORK_ERROR,
       }
     },
     {
@@ -76,7 +76,7 @@ describe("castToError", () => {
         "error_data": {"error": "invalid_token", "error_description": "token is incorrect"}
       },
       match: {
-        type: VkError.CLIENT_ERROR,
+        type: VkErrorTypes.CLIENT_ERROR,
       }
     },
     {
@@ -98,7 +98,7 @@ describe("castToError", () => {
         }
       },
       match: {
-        type: VkError.USER_REJECT,
+        type: VkErrorTypes.ACCESS_ERROR,
       }
     },
     {
@@ -110,7 +110,7 @@ describe("castToError", () => {
         "error_data": {"error_code": 4, "error_reason": "User denied"}
       },
       match: {
-        type: VkError.USER_REJECT,
+        type: VkErrorTypes.ACCESS_ERROR,
       }
     }
   ]

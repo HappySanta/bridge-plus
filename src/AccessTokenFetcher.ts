@@ -1,8 +1,8 @@
 import {BridgePlus} from "./BridgePlus";
 import {isEqualScope, trimAccessToken} from "./helpers";
-import {VkError} from "./VkError";
+import {VkError, VkErrorTypes} from "./VkError";
 import {USER_ALLOW_NOT_ALL_RIGHTS} from "./const";
-import {retryCall} from "./RetryCall";
+import {exponentialBackoffForApi} from "./backoff";
 
 export class AccessTokenFetcher {
 
@@ -14,9 +14,11 @@ export class AccessTokenFetcher {
     if (cachedToken) {
       return cachedToken
     }
-    const {access_token, scope: resScope} = await this.fetchWithRetry(scope, appId, 5, requestId)
+
+    BridgePlus.log(`AccessTokenFetcher [${requestId}] start fetching`)
+    const {access_token, scope: resScope} = await this.fetchWithRetry(scope, appId, requestId)
     if (!isEqualScope(resScope, scope)) {
-      throw new VkError(`user allow not all scope request: ${scope} receive:${resScope}`, VkError.ACCESS_ERROR, USER_ALLOW_NOT_ALL_RIGHTS)
+      throw new VkError(`user allow not all scope request: ${scope} receive:${resScope}`, VkErrorTypes.ACCESS_ERROR, USER_ALLOW_NOT_ALL_RIGHTS)
     }
     BridgePlus.log(`AccessTokenFetcher [${requestId}] receive token ${trimAccessToken(access_token)}`)
     this.cache[key] = access_token
@@ -24,6 +26,7 @@ export class AccessTokenFetcher {
   }
 
   public drop(token: string) {
+    BridgePlus.log(`AccessTokenFetcher drop token ${trimAccessToken(token)}`)
     let drop: string[] = []
     for (let key in this.cache) {
       if (this.cache.hasOwnProperty(key) && this.cache[key] === token) {
@@ -35,11 +38,12 @@ export class AccessTokenFetcher {
     })
   }
 
-  public async fetchWithRetry(scope: string, appId: number, tryCount: number = 5, requestId = "") {
-    return await retryCall(async () => {
+  public async fetchWithRetry(scope: string, appId: number, requestId = "") {
+    return await exponentialBackoffForApi(async () => {
       return await BridgePlus.getAuthToken(scope, appId)
-    }, tryCount, (e: VkError) => {
+    }, (e: any) => {
       BridgePlus.log(`AccessTokenFetcher [${requestId}] retry fetch: ${e.message} \n during fetching token scope:${scope} app:${appId}`)
+      return false;
     })
   }
 }

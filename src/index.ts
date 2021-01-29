@@ -4,7 +4,7 @@ export * from './VkError';
 export * from './VkObserver';
 export * from './VkStartParams';
 export * from './Queue';
-export * from './RetryCall';
+export * from './backoff';
 export * from './castToError';
 export * from './AccessTokenFetcher';
 export * from './helpers';

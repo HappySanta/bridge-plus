@@ -1,26 +1,24 @@
 import VkBridge from "@vkontakte/vk-bridge"
 import {AnyReceiveMethodName, VKBridgeEvent} from "@vkontakte/vk-bridge/dist/types/src/types/bridge";
-
-export declare type BridgePlusEventName<T extends AnyReceiveMethodName> = VKBridgeEvent<T>["detail"]["type"]
-export declare type BridgePlusEventCallback<T extends AnyReceiveMethodName> = (e: VKBridgeEvent<T>["detail"]["data"], t: BridgePlusEventName<T>) => void
+import {AnyEventName, BridgePlusEventCallback} from "./extendedTypes";
 
 export default class VkObserver {
 
   static subjects: {
-    eventType: BridgePlusEventName<AnyReceiveMethodName>,
-    callback: BridgePlusEventCallback<AnyReceiveMethodName>
+    eventType: AnyEventName,
+    callback: BridgePlusEventCallback<AnyEventName>,
   }[] = []
 
-  static subscribe<T extends AnyReceiveMethodName>(eventType: BridgePlusEventName<T>, callback: BridgePlusEventCallback<T>) {
+  static subscribe<T extends AnyEventName>(eventType: T, callback: BridgePlusEventCallback<T>) {
     if (!VkObserver.subjects.length) {
       VkBridge.subscribe(VkObserver.observerCallback)
     }
-    VkObserver.subjects.push({eventType, callback: callback as any as BridgePlusEventCallback<AnyReceiveMethodName>})
+    VkObserver.subjects.push({eventType, callback: callback})
   }
 
-  static unsubscribe<T extends AnyReceiveMethodName>(eventType: BridgePlusEventName<T>, callback: BridgePlusEventCallback<T>) {
+  static unsubscribe<T extends AnyEventName>(eventType: T, callback: BridgePlusEventCallback<T>) {
     VkObserver.subjects = VkObserver.subjects.filter(subject =>
-      subject.eventType !== eventType && (callback as any as BridgePlusEventCallback<AnyReceiveMethodName>) !== subject.callback)
+      subject.eventType !== eventType && (callback) !== subject.callback)
     if (!VkObserver.subjects.length) {
       VkBridge.unsubscribe(VkObserver.observerCallback)
     }
@@ -35,7 +33,7 @@ export default class VkObserver {
     let data = vkEvent.data
     VkObserver.subjects.forEach(subject => {
       if (subject.eventType === eventType) {
-        subject.callback(data, eventType)
+        subject.callback(data)
       }
     })
   }

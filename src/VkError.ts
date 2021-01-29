@@ -1,18 +1,19 @@
-export class VkError extends Error {
+export enum VkErrorTypes {
+  UNKNOWN_TYPE = 'UNKNOWN_TYPE',
+  CLIENT_ERROR = 'client_error',
+  API_ERROR = 'api_error',
+  NETWORK_ERROR = 'network_error',
+  ACCESS_ERROR = 'access_error',
+}
 
-  static UNKNOWN_TYPE = 'UNKNOWN_TYPE'
-  static CLIENT_ERROR = 'client_error'
-  static API_ERROR = 'api_error'
-  static NETWORK_ERROR = 'network_error'
-  static ACCESS_ERROR = 'access_error'
-  static USER_REJECT = 'access_error'
+export class VkError extends Error {
   public type: string;
   public code: number = 0;
   public retry: number = 0;
   public origin: any = null;
   public request_params: { key: string, value: string }[] | null = null
 
-  constructor(message: string, type:string = VkError.UNKNOWN_TYPE, code = 0) {
+  constructor(message: string, type: VkErrorTypes, code = 0) {
     super(message)
     this.message = message
     this.type = type

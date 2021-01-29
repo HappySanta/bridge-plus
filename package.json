@@ -1,6 +1,6 @@
 {
   "name": "@happysanta/bridge-plus",
-  "version": "0.0.1",
+  "version": "0.0.7",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "jsnext:main": "src/index.ts",
@@ -36,7 +36,6 @@
     "@typescript-eslint/eslint-plugin": "^2.34.0",
     "@typescript-eslint/parser": "^2.34.0",
     "@vkontakte/eslint-config": "^2.5.0",
-    "@vkontakte/vk-bridge": "^2.2.8",
     "@vkontakte/vkui": "^4.0.0-beta.27",
     "babel-eslint": "^10.1.0",
     "babel-jest": "^26.3.0",
@@ -60,6 +59,8 @@
     "webpack-cli": "^3.3.12"
   },
   "dependencies": {
+    "@vkontakte/vk-bridge": "^2.4.0",
+    "exponential-backoff": "^3.1.0",
     "query-string": "^6.13.6"
   }
 }

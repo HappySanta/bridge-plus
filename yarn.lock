@@ -1408,10 +1408,10 @@
     babel-eslint "^10.0.3"
     eslint-config-google "^0.9.1"
 
-"@vkontakte/vk-bridge@^2.2.8":
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/@vkontakte/vk-bridge/-/vk-bridge-2.3.0.tgz#d436daeab23bf51a4485a3a45493f793dab78187"
-  integrity sha512-1kICD4u5J8EO4PyGg7ZMBwOju85Wh7zb5OxVs1JYB/ghTHg5YQSmpIx9M4NZH2TnK9KelUpBEs+TwFpkB5PMyw==
+"@vkontakte/vk-bridge@^2.4.0":
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/@vkontakte/vk-bridge/-/vk-bridge-2.4.0.tgz#99835f34e64585b1267ba3cfb2241155a9ebcc28"
+  integrity sha512-LtlMt1nBurY7zaDiX/RjtKWPX1THnnVgOUymfILDW8SyBtJy0podwrGpUPDi9FtWvgvmuYF40ZYPA47EkY19nQ==
 
 "@vkontakte/vkui@^4.0.0-beta.27":
   version "4.0.0-beta.30"
@@ -3103,6 +3103,11 @@ expect@^26.6.0:
     jest-matcher-utils "^26.6.0"
     jest-message-util "^26.6.0"
     jest-regex-util "^26.0.0"
+
+exponential-backoff@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/exponential-backoff/-/exponential-backoff-3.1.0.tgz#9409c7e579131f8bd4b32d7d8094a911040f2e68"
+  integrity sha512-oBuz5SYz5zzyuHINoe9ooePwSu0xApKWgeNzok4hZ5YKXFh9zrQBEM15CXqoZkJJPuI2ArvqjPQd8UKJA753XA==
 
 extend-shallow@^2.0.1:
   version "2.0.1"

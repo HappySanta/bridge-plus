@@ -48,3 +48,62 @@ export function getContextId():string {
 export function trimAccessToken(token:string) {
   return token.substr(0,5)+'...'+token.substr(-5)
 }
+
+export function normalizeScope(scope:string|string[]):string {
+  if (typeof scope === 'string') {
+    return normalizeScope(scope.split(",").map(s => s.trim()))
+  } else {
+    return scope.concat([]).sort( (a,b) => a.localeCompare(b) ).join(',')
+  }
+}
+
+
+export function printValue(value:any, req:number = 0):string {
+  const type = typeof value
+  const isNull = value === null
+  if (isNull) {
+    return `(null) null`
+  } else if (type === "object") {
+    return `(Object[${value.constructor.name}]) ${recursivePrintObject(value, req + 1)}`
+  } else {
+    return `(${type}) ${value.toString()}`
+  }
+}
+
+export function recursivePrintObject(obj:any, req:number = 0): string {
+  if (req > 3) {
+    return 'Object'
+  }
+  if (typeof obj === "object") {
+    let res = `{`
+    for (let key in obj) {
+      if (!obj.hasOwnProperty(key)) continue;
+      const value = (obj as { [key: string]: any })[key]
+      res += `${key}: ${printValue(value)} \n`
+    }
+    res += `}`
+    return res
+  } else {
+    return printValue(obj)
+  }
+}
+
+export function prettyPrintAny(x: any):string {
+  try {
+    const res = JSON.stringify(x);
+    if (res === '{}') {
+      const objectPrint = recursivePrintObject(x);
+      if (objectPrint.length > res.length) {
+        return objectPrint
+      } else {
+        return res
+      }
+    } else {
+      return res
+    }
+  } catch (e) {
+    const castError = e?.message || "Unknown cast error";
+    const constructor = x.constructor.name;
+    return `Unknown error: castError ${castError} ${constructor} ${prettyPrintAny(x)}`
+  }
+}
