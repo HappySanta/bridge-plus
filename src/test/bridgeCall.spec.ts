@@ -71,4 +71,10 @@ describe('bridgeCall', () => {
     expect(user.id).toBe(555);
     done();
   });
+
+  it('call api method with #5 error', async (done) => {
+    const { response: user } = await BridgePlus.api<{response: {id: number}}>('users.getGetByIdFailAuth', { id: 666 }, '');
+    expect(user.id).toBe(666);
+    done();
+  });
 });

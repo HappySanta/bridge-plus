@@ -23,8 +23,8 @@ export async function exponentialBackoffForApi<T>(fn: () => Promise<T>, onError?
     startingDelay: 500,
     timeMultiple: 2,
     retry: (e: any) => {
-      if (onError && onError(e)) {
-        return false;
+      if (onError) {
+        return !onError(e);
       } else if (checkIsVkError(e)) {
         return checkErrorIsNetwork(e) || checkErrorIsSoftApiError(e);
       } else {

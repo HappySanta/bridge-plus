@@ -112,6 +112,31 @@ describe('castToError', () => {
         type: VkErrorTypes.ACCESS_ERROR,
       },
     },
+    {
+      platform: 'desktop_web',
+      name: 'VKWebAppCallApiMethod different ip',
+      raw: {
+        'error_type': 'client_error',
+        'error_data': {
+          'error_code': 1,
+          'error_reason': {
+            'error_code': 5,
+            'error_msg': 'User authorization failed: access_token was given to another ip address.',
+            'request_params': [{ 'key': 'method', 'value': 'users.get' }, {
+              'key': 'oauth',
+              'value': '1',
+            }, { 'key': '?api_id', 'value': '6703670' }, { 'key': 'format', 'value': 'json' }, {
+              'key': 'v',
+              'value': '5.101',
+            }, { 'key': 'user_ids', 'value': '1,2,3' }, { 'key': 'request_id', 'value': '12345' }],
+          },
+        },
+      },
+      match: {
+        type: VkErrorTypes.API_ERROR,
+        code: 5,
+      },
+    },
   ];
 
   errors.forEach(({ platform, name, raw, match }) => {

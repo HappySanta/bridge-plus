@@ -12,6 +12,8 @@ class CustomEnvironment extends NodeEnvironment {
     // await someSetupTasks(this.testPath);
     // this.global.someGlobalObject = {}
 
+    let failAuthDropToken = false;
+
     const getRequestId = args => {
       const x = JSON.parse(args);
       return x.request_id;
@@ -81,6 +83,33 @@ class CustomEnvironment extends NodeEnvironment {
           }, getRequestId(args));
         }
 
+        if (data.method === 'users.getGetByIdFailAuth') {
+          failAuthDropToken = !failAuthDropToken
+          if (failAuthDropToken) {
+            return response('VKWebAppCallAPIMethodFailed', {
+              'error_type': 'client_error',
+              'error_data': {
+                'error_code': 1,
+                'error_reason': {
+                  'error_code': 5,
+                  'error_msg': 'User authorization failed: access_token was given to another ip address.',
+                  'request_params': [{ 'key': 'method', 'value': 'users.get' }, {
+                    'key': 'oauth',
+                    'value': '1',
+                  }, { 'key': '?api_id', 'value': '6703670' }, { 'key': 'format', 'value': 'json' }, {
+                    'key': 'v',
+                    'value': '5.101',
+                  }, { 'key': 'user_ids', 'value': '1,2,3' }, { 'key': 'request_id', 'value': '12345' }],
+                },
+              },
+            }, getRequestId(args));
+          } else {
+            return response('VKWebAppCallAPIMethodResult', {
+              response: { id: data.params.id, first_name: 'Test' },
+            }, getRequestId(args));
+          }
+        }
+
         response('VKWebAppCallAPIMethodFailed', {
           'error_type': 'client_error',
           'error_data': { 'error_code': 9999, 'error_reason': 'Test env not support method: ' + data.method },
@@ -99,7 +128,7 @@ class CustomEnvironment extends NodeEnvironment {
 
         response('VKWebAppGetAuthTokenResult', {
           scope: data.scope,
-          access_token: 'test-token-12',
+          access_token: 'test-token-'+Math.random(),
         }, getRequestId(args));
       },
     };
