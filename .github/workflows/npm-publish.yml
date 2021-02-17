@@ -13,8 +13,9 @@ jobs:
         node-version: '12.x'
         registry-url: 'https://registry.npmjs.org'
         # Defaults to the user or organization that owns the workflow file
-        scope: '@happysanta' 
+        scope: '@happysanta'
     - run: yarn
+    - run: yarn run lint-check && yarn run test
     - run: yarn publish --no-git-tag-version --access public --new-version $(git describe --tags)
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
