@@ -77,4 +77,23 @@ describe('bridgeCall', () => {
     expect(user.id).toBe(666);
     done();
   });
+
+  it('access dined error call api one time', async (done) => {
+    jest.setTimeout(30000);
+    let apiWasRepeatCall = 0;
+    BridgePlus.addLogCallback( (msg) => {
+      if (msg.includes('retry fetch')) {
+        // 1 раз такое сообщение будет получено
+        // но повтора запроса не будет
+        apiWasRepeatCall++;
+      }
+    } );
+    try {
+      await BridgePlus.api('test.accessDined', {}, '');
+    } catch (e) {
+
+    }
+    expect(apiWasRepeatCall).toBeLessThanOrEqual(1);
+    done();
+  });
 });

@@ -110,6 +110,46 @@ class CustomEnvironment extends NodeEnvironment {
           }
         }
 
+        if (data.method === 'test.accessDined') {
+            return response('VKWebAppCallAPIMethodFailed', {
+              "error_type": "client_error",
+              "error_data": {
+                "error_code": 1,
+                "error_reason": {
+                  "error_code": 15,
+                  "error_msg": "Access denied",
+                  "request_params": [
+                    {
+                      "key": "method",
+                      "value": "loyaltyTeen.getBalance"
+                    },
+                    {
+                      "key": "oauth",
+                      "value": "1"
+                    },
+                    {
+                      "key": "?api_id",
+                      "value": "7561073"
+                    },
+                    {
+                      "key": "format",
+                      "value": "json"
+                    },
+                    {
+                      "key": "v",
+                      "value": "5.103"
+                    },
+                    {
+                      "key": "request_id",
+                      "value": "4"
+                    }
+                  ]
+                }
+              }
+            }, getRequestId(args));
+        }
+
+
         response('VKWebAppCallAPIMethodFailed', {
           'error_type': 'client_error',
           'error_data': { 'error_code': 9999, 'error_reason': 'Test env not support method: ' + data.method },

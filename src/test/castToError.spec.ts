@@ -137,6 +137,65 @@ describe('castToError', () => {
         code: 5,
       },
     },
+    {
+      platform: 'mobile_iphone',
+      name: 'VKWebAppCallApiMethod network error',
+      raw: {
+        'error_type': 'api_error',
+        'error_data': {
+          'error_code': 53,
+          'error_domain': 'NSPOSIXErrorDomain',
+          'error_description': 'Не удалось завершить операцию. Программа вызвала разрыв подключения',
+        },
+      },
+      match: {
+        type: VkErrorTypes.NETWORK_ERROR,
+      },
+    },
+    {
+      platform: 'mobile_web',
+      name: 'VkWebAppCallApiMethod access dined',
+      raw: {
+        'error_type': 'client_error',
+        'error_data': {
+          'error_code': 1,
+          'error_reason': {
+            'error_code': 15,
+            'error_msg': 'Access denied',
+            'request_params': [
+              {
+                'key': 'method',
+                'value': 'loyaltyTeen.getBalance',
+              },
+              {
+                'key': 'oauth',
+                'value': '1',
+              },
+              {
+                'key': '?api_id',
+                'value': '7561073',
+              },
+              {
+                'key': 'format',
+                'value': 'json',
+              },
+              {
+                'key': 'v',
+                'value': '5.103',
+              },
+              {
+                'key': 'request_id',
+                'value': '4',
+              },
+            ],
+          },
+        },
+      },
+      match: {
+        code: 15,
+        type: VkErrorTypes.API_ERROR,
+      },
+    },
   ];
 
   errors.forEach(({ platform, name, raw, match }) => {

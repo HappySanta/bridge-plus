@@ -212,7 +212,8 @@ export class BridgePlus {
 
       // Ошибка о том что токен протух, такое бывает когда у пользователя меняется ip
       if (e instanceof VkError && e.code === VK_API_AUTH_FAIL) {
-        // Есл мы сами запрашивали токен, то удалим его
+        // Если мы сами запрашивали токен, то удалим его при следующем вызове к апи
+        // он создастся снова
         if (needAccessToken) {
           defaultAccessTokenFetcher.drop(lastFetchedToken);
         } else {
