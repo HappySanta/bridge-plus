@@ -14,18 +14,28 @@ export function checkErrorIsSoftApiError(e: VkError): boolean {
   return e.type === VkErrorTypes.API_ERROR && SOFT_ERROR_CODES.includes(e.code);
 }
 
+/**
+ * @param fn
+ * @param onError если вернет true но будет повтор запроса если false то не будет
+ * если undefined то будет использована стандартная логика
+ */
 export async function exponentialBackoffForApi<T>(fn: () => Promise<T>, onError?: (e: any) => undefined|boolean): Promise<T> {
   return await backOff(fn, {
     delayFirstAttempt: false,
     jitter: 'full',
     maxDelay: 10000,
-    numOfAttempts: 10,
+    numOfAttempts: 6,
     startingDelay: 500,
     timeMultiple: 2,
     retry: (e: any) => {
-      if (onError && onError(e)) {
-        return false;
-      } else if (checkIsVkError(e)) {
+      if (onError) {
+        const res = onError(e);
+        if (res !== undefined) {
+          return res;
+        }
+      }
+
+      if (checkIsVkError(e)) {
         return checkErrorIsNetwork(e) || checkErrorIsSoftApiError(e);
       } else {
         return false;

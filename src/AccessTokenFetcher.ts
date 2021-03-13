@@ -2,7 +2,7 @@ import { BridgePlus } from './BridgePlus';
 import { isEqualScope, trimAccessToken } from './helpers';
 import { VkError, VkErrorTypes } from './VkError';
 import { USER_ALLOW_NOT_ALL_RIGHTS } from './const';
-import { exponentialBackoffForApi } from './backoff';
+import { checkIsVkError, exponentialBackoffForApi } from './backoff';
 
 export class AccessTokenFetcher {
   private cache: Record<string, string> = {};
@@ -42,7 +42,10 @@ export class AccessTokenFetcher {
       return await BridgePlus.getAuthToken(scope, appId);
     }, (e: any) => {
       BridgePlus.log(`AccessTokenFetcher [${requestId}] retry fetch: ${e.message} \n during fetching token scope:${scope} app:${appId}`);
-      return false;
+      if (checkIsVkError(e)) {
+        return e.type !== VkErrorTypes.ACCESS_ERROR;
+      }
+      return undefined;
     });
   }
 }

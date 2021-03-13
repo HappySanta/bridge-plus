@@ -216,13 +216,14 @@ export class BridgePlus {
         // он создастся снова
         if (needAccessToken) {
           defaultAccessTokenFetcher.drop(lastFetchedToken);
+          return true;
         } else {
           // Если токен пришел из параметров вызова
           // то выкидываем ошибку во вне
-          return true;
+          return false;
         }
       }
-      return false;
+      return undefined;
     });
   }
 
