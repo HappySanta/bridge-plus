@@ -196,6 +196,21 @@ describe('castToError', () => {
         type: VkErrorTypes.API_ERROR,
       },
     },
+    {
+      platform: 'mobile_iphone',
+      name: 'VKWebAppGetAuthToken',
+      raw: {
+        'error_type': 'client_error',
+        'error_data': {
+          'error_code': 1,
+          'error_reason': 'Network error',
+        },
+      },
+      match: {
+        code: 1,
+        type: VkErrorTypes.NETWORK_ERROR,
+      },
+    },
   ];
 
   errors.forEach(({ platform, name, raw, match }) => {

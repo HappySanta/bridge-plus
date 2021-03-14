@@ -11,6 +11,12 @@ export function castToError(object: any, description: string) {
 
   error.type = gp(object, 'error_type') || error.type;
 
+  if (error.type === 'client_error'
+    && gp(object, 'error_data.error_code') === 1
+    && gp(object, 'error_data.error_reason') === 'Network error') {
+    error.type = VkErrorTypes.NETWORK_ERROR;
+  }
+
   if (gp(object, 'error_data.error_code')) {
     error.code = gp(object, 'error_data.error_code');
   }
