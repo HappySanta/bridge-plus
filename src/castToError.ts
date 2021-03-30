@@ -95,7 +95,8 @@ export function castToError(object: any, description: string) {
     if (object && object.error_data) {
       const data = object.error_data;
       // Коды ошибок подсмотрели тут https://github.com/apple/swift/blob/3a75394c670bb7143397327ac7bf5b5fe8d50588/stdlib/public/SDK/Foundation/NSError.swift#L642
-      if (data.error_code > -4000) {
+      // если нет request_params то это не ошибка от api
+      if (data.error_code > -4000 && !data.request_params) {
         error.type = VkErrorTypes.NETWORK_ERROR;
         error.message = data.error_description || error.message;
       }

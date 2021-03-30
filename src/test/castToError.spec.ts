@@ -211,6 +211,66 @@ describe('castToError', () => {
         type: VkErrorTypes.NETWORK_ERROR,
       },
     },
+    {
+      platform: 'desktop_web',
+      name: 'VKWebAppCallApiMethod bad request',
+      raw: {
+        'error_type': 'client_error',
+        'error_data': {
+          'error_code': 1,
+          'error_reason': {
+            'error_code': 15,
+            'error_msg': 'Access denied: no access to call this method',
+            'request_params': [{ 'key': 'method', 'value': 'messages.send' }, {
+              'key': 'oauth',
+              'value': '1',
+            }, { 'key': '?api_id', 'value': '6703670' }, { 'key': 'format', 'value': 'json' }, {
+              'key': 'v',
+              'value': '5.120',
+            }, { 'key': 'request_id', 'value': '6' }],
+          },
+        },
+      },
+      match: {
+        code: 15,
+        type: VkErrorTypes.API_ERROR,
+      },
+    },
+    {
+      platform: 'mobile_iphone',
+      name: 'VKWebAppCallApiMethod bad request',
+      raw: {
+        'error_type': 'api_error',
+        'error_data': {
+          'error_code': 113,
+          'request_params': [{ 'key': 'user_ids', 'value': '-123' }, { 'key': 'v', 'value': '5.120' }, {
+            'key': 'method',
+            'value': 'users.get',
+          }, { 'key': 'oauth', 'value': '1' }],
+          'error_msg': 'Invalid user id',
+        },
+      },
+      match: {
+        code: 113,
+        type: VkErrorTypes.API_ERROR,
+      },
+    },
+    {
+      platform: 'mobile_android',
+      name: 'VKWebAppCallApiMethod bad request',
+      raw: {
+        'error_type': 'api_error',
+        'error_data': {
+          'error_code': 5004,
+          'error_msg': 'Invalid user id',
+          'request_params': [{ 'key': 'v', 'value': '5.120' }, { 'key': 'user_ids', 'value': '-123' }],
+        },
+      },
+      match: {
+        code: 5004,
+        type: VkErrorTypes.API_ERROR,
+      },
+    },
   ];
 
   errors.forEach(({ platform, name, raw, match }) => {
