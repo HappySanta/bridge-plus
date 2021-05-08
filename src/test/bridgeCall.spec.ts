@@ -96,4 +96,32 @@ describe('bridgeCall', () => {
     expect(apiWasRepeatCall).toBeLessThanOrEqual(1);
     done();
   });
+
+  it('storageGetKey', async (done) => {
+    const value = await BridgePlus.storageGetKey('NOT_SETTED_KEY');
+    expect(value).toBe('');
+    done();
+  });
+
+  it('storageGetKey storageSet', async (done) => {
+    const keyName = 'TEST_KEY_1';
+    expect(await BridgePlus.storageGetKey(keyName)).toBe('');
+    await BridgePlus.storageSet(keyName, '555');
+    expect(await BridgePlus.storageGetKey(keyName)).toBe('555');
+    done();
+  });
+
+  it('storageGetKeyMap', async (done) => {
+    expect(await BridgePlus.storageGetKeyMap(['user', 'alive'])).toStrictEqual({
+      user: '',
+      alive: '',
+    });
+    await BridgePlus.storageSet('user', '555');
+    await BridgePlus.storageSet('alive', 'test_string');
+    expect(await BridgePlus.storageGetKeyMap(['user', 'alive'])).toStrictEqual({
+      user: '555',
+      alive: 'test_string',
+    });
+    done();
+  });
 });

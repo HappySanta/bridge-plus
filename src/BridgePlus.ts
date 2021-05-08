@@ -32,7 +32,7 @@ import { AnyEventName, BridgePlusEventCallback } from './extendedTypes';
 
 type ApiParams = Record<'access_token' | 'v', string> & Record<string, string | number>;
 
-function isApiParams(x: Record<string, string|number>): x is ApiParams {
+function isApiParams(x: Record<string, string | number>): x is ApiParams {
   return !!x.v && !!x.access_token;
 }
 
@@ -553,15 +553,15 @@ export class BridgePlus {
   }
 
   /**
-   * Получение значения ключа
+   * Получение значения ключей
    * @param {string[]} keys
    * @return {Promise<{keys:{key:string,value:string}[]}>}
    */
   static storageGet(keys: string[]) {
-    return exponentialBackoffAnyError( () => BridgePlus.send('VKWebAppStorageGet', { keys }), (e) => {
+    return exponentialBackoffAnyError(() => BridgePlus.send('VKWebAppStorageGet', { keys }), (e) => {
       BridgePlus.log('VKWebAppStorageGetFailed retrying', e);
       return false;
-    } );
+    });
   }
 
   /**
@@ -571,22 +571,55 @@ export class BridgePlus {
    * @return {Promise<{result:boolean}>}
    */
   static storageSet(key: string, value: string) {
-    return exponentialBackoffAnyError( () => BridgePlus.send('VKWebAppStorageSet', { key, value }), (e) => {
+    return exponentialBackoffAnyError(() => BridgePlus.send('VKWebAppStorageSet', { key, value }), (e) => {
       BridgePlus.log('VKWebAppStorageSetFailed retrying', e);
       return false;
-    } );
+    });
   }
 
   /**
-   * Получение ключей
+   * Получение списка ключей
    * @param {number} count
    * @param {number} offset
    */
   static storageGetKeys(count = 20, offset = 0) {
-    return exponentialBackoffAnyError( () => BridgePlus.send('VKWebAppStorageGetKeys', { count, offset }), (e) => {
+    return exponentialBackoffAnyError(() => BridgePlus.send('VKWebAppStorageGetKeys', { count, offset }), (e) => {
       BridgePlus.log('VKWebAppStorageGetKeysFailed retrying', e);
       return false;
-    } );
+    });
+  }
+
+  /**
+   * Получение значения ключа
+   * @param key
+   * @param defaultValue
+   * @return {Promise<string>} пустая строка если ключа нет
+   */
+  static async storageGetKey(key: string, defaultValue = '') {
+    try {
+      const data = await BridgePlus.storageGet([key]);
+      if (data.keys.length) {
+        return data.keys[0].value;
+      }
+      return '';
+    } catch (e) {
+      return defaultValue;
+    }
+  }
+
+  /**
+   * @param keys
+   */
+  static async storageGetKeyMap(keys: string[]) {
+    try {
+      const data = await BridgePlus.storageGet(keys);
+      const res: { [key: string]: string } = {};
+      keys.forEach((name) => res[name] = '');
+      data.keys.forEach((item) => res[item.key] = item.value);
+      return res;
+    } catch (e) {
+      return {};
+    }
   }
 
   /**
@@ -595,15 +628,22 @@ export class BridgePlus {
    * @return {Promise}
    */
   static send<K extends AnyRequestMethodName>(method: K, props?: RequestProps<K> & RequestIdProp): Promise<K extends AnyReceiveMethodName ? ReceiveData<K> : void> {
-    BridgePlus.log(method, props);
+    const contextId = getContextId();
+    BridgePlus.log(method, props, `start context:${contextId}`);
     const saveStack = new Error('saved error stack');
-    return VkBridge.send(method, props).catch((e) => {
-      const err = castToError(e, method);
-      if (!e.stack && err.stack && saveStack.stack) {
-        err.stack += `\n${ saveStack.stack.substr(saveStack.stack.indexOf('\n') + 1)}`;
-      }
-      throw err;
-    });
+    return VkBridge.send(method, props)
+      .then((res) => {
+        BridgePlus.log(method, props, `done context:${contextId}`);
+        return res;
+      })
+      .catch((e) => {
+        BridgePlus.log(method, props, `failed context:${contextId}`);
+        const err = castToError(e, method);
+        if (!e.stack && err.stack && saveStack.stack) {
+          err.stack += `\n${saveStack.stack.substr(saveStack.stack.indexOf('\n') + 1)}`;
+        }
+        throw err;
+      });
   }
 
   /**

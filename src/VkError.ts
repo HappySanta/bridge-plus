@@ -7,7 +7,7 @@ export enum VkErrorTypes {
 }
 
 export class VkError extends Error {
-  public type: string;
+  public type: VkErrorTypes;
   public code = 0;
   public retry = 0;
   public origin: any = null;
@@ -20,4 +20,29 @@ export class VkError extends Error {
     this.code = code;
     this.retry = 0;
   }
+}
+
+export function isVkError(e: any): e is VkError {
+  return e instanceof VkError;
+}
+
+export function isUserError(e: any): boolean {
+  return isVkError(e) && e.type === VkErrorTypes.ACCESS_ERROR;
+}
+
+export function matchErrorTypeOrUnknown(errorType: string): VkErrorTypes {
+  errorType = (errorType || '').toString().toLocaleLowerCase();
+  if (errorType === VkErrorTypes.ACCESS_ERROR) {
+    return VkErrorTypes.ACCESS_ERROR;
+  }
+  if (errorType === VkErrorTypes.API_ERROR) {
+    return VkErrorTypes.API_ERROR;
+  }
+  if (errorType === VkErrorTypes.NETWORK_ERROR) {
+    return VkErrorTypes.NETWORK_ERROR;
+  }
+  if (errorType === VkErrorTypes.CLIENT_ERROR) {
+    return VkErrorTypes.CLIENT_ERROR;
+  }
+  return VkErrorTypes.UNKNOWN_TYPE;
 }

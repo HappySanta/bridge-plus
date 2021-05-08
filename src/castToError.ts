@@ -1,4 +1,4 @@
-import { VkError, VkErrorTypes } from './VkError';
+import { matchErrorTypeOrUnknown, VkError, VkErrorTypes } from './VkError';
 import { gp, prettyPrintAny } from './helpers';
 
 export function castToError(object: any, description: string) {
@@ -6,12 +6,11 @@ export function castToError(object: any, description: string) {
     return object;
   }
 
-  const error = new VkError(prettyPrintAny(object), VkErrorTypes.UNKNOWN_TYPE);
+  const originalErrorType = (gp(object, 'error_type') || '').toString();
+  const error = new VkError(prettyPrintAny(object), matchErrorTypeOrUnknown(originalErrorType));
   error.origin = object;
 
-  error.type = gp(object, 'error_type') || error.type;
-
-  if (error.type === 'client_error'
+  if (originalErrorType === 'client_error'
     && gp(object, 'error_data.error_code') === 1
     && gp(object, 'error_data.error_reason') === 'Network error') {
     error.type = VkErrorTypes.NETWORK_ERROR;
@@ -43,7 +42,7 @@ export function castToError(object: any, description: string) {
   if (object && object.error_type) {
     // error.type = object.error_type;
     // На андроиде такая ошибка приходит когда нет интернета при запросе токена
-    if (error.type === 'auth_error') {
+    if (originalErrorType === 'auth_error') {
       error.type = VkErrorTypes.CLIENT_ERROR;
     }
   }
@@ -54,12 +53,12 @@ export function castToError(object: any, description: string) {
   }
 
   // нет сети на iOS когда вызвали метод апи
-  if (error.code === 3 && error.type === 'client_error') {
+  if (error.code === 3 && originalErrorType === 'client_error') {
     error.type = VkErrorTypes.NETWORK_ERROR;
   }
 
   // Пользователь что-то запретил
-  if (error.code === 4 && error.type === 'client_error') {
+  if (error.code === 4 && originalErrorType === 'client_error') {
     error.type = VkErrorTypes.ACCESS_ERROR;
   }
 

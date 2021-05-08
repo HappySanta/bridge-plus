@@ -29,6 +29,8 @@ class CustomEnvironment extends NodeEnvironment {
       }));
     };
 
+    const storage = {}
+
     this.global.window.AndroidBridge = {
       VKWebAppInit: (args) => {
         response('VKWebAppUpdateConfig', {
@@ -37,6 +39,22 @@ class CustomEnvironment extends NodeEnvironment {
         setTimeout(() => {
           response('VKWebAppInitResult', {}, getRequestId(args));
         }, 1);
+      },
+      VKWebAppStorageGet: (args) => {
+        const argsJson = JSON.parse(args)
+        const res = [];
+        argsJson.keys.forEach(key => {
+          res.push({
+            key: key,
+            value: storage[key] || ""
+          })
+        })
+        response('VKWebAppStorageGetResult', {keys: res}, getRequestId(args))
+      },
+      VKWebAppStorageSet: (args) => {
+        const argsJson = JSON.parse(args)
+        storage[argsJson.key] = argsJson.value
+        response('VKWebAppStorageGetResult', {result:1}, getRequestId(args))
       },
       FakeTestMethod: (args) => {
 

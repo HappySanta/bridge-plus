@@ -1,5 +1,5 @@
 import { castToError } from '../castToError';
-import { VkErrorTypes } from '../VkError';
+import { isUserError, VkErrorTypes } from '../VkError';
 
 describe('castToError', () => {
   const errors = [
@@ -278,5 +278,11 @@ describe('castToError', () => {
       const error = castToError(raw, 'test');
       expect(error).toMatchObject(match);
     });
+  });
+
+  test('isUserError', () => {
+    const raw = { 'error_type': 'client_error', 'error_data': { 'error_code': 4, 'error_reason': 'User denied' } };
+    const err = castToError(raw, 'user error');
+    expect(isUserError(err)).toBe(true);
   });
 });
