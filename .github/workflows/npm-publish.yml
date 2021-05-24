@@ -14,7 +14,7 @@ jobs:
         registry-url: 'https://registry.npmjs.org'
         # Defaults to the user or organization that owns the workflow file
         scope: '@happysanta'
-    - run: yarn
+    - run: yarn add @vkontakte/vk-bridge --peer
     - run: yarn run lint-check && yarn run test
     - run: yarn publish --no-git-tag-version --access public --new-version $(git describe --tags)
       env:
