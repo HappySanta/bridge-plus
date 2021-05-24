@@ -1443,10 +1443,10 @@
     babel-eslint "^10.0.3"
     eslint-config-google "^0.9.1"
 
-"@vkontakte/vk-bridge@^2.4.0":
-  version "2.4.0"
-  resolved "https://registry.yarnpkg.com/@vkontakte/vk-bridge/-/vk-bridge-2.4.0.tgz#99835f34e64585b1267ba3cfb2241155a9ebcc28"
-  integrity sha512-LtlMt1nBurY7zaDiX/RjtKWPX1THnnVgOUymfILDW8SyBtJy0podwrGpUPDi9FtWvgvmuYF40ZYPA47EkY19nQ==
+"@vkontakte/vk-bridge@^2.4.1":
+  version "2.4.1"
+  resolved "https://registry.yarnpkg.com/@vkontakte/vk-bridge/-/vk-bridge-2.4.1.tgz#22b64d729899a1ae7683ff171fac386ce643dc1e"
+  integrity sha512-4n1++E6IIQ+8R2K8PDCvLucwiGmXIKlynqhS3v5FuhlrsauGoLrudL4rC4r5gEnCxVDOuQzXgql7V9f5Vu6Azg==
 
 "@vkontakte/vkui@^4.0.0-beta.27":
   version "4.0.0-beta.30"
