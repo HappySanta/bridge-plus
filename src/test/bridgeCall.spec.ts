@@ -5,6 +5,7 @@ import { BridgePlus } from '../BridgePlus';
 import { VkError, VkErrorTypes } from '../VkError';
 import { BridgePlusEvent } from '../extendedTypes';
 import { delay } from '../helpers';
+import { defaultAccessTokenFetcher } from '../AccessTokenFetcher';
 
 describe('bridgeCall', () => {
   it('test-env-works', () => {
@@ -122,6 +123,64 @@ describe('bridgeCall', () => {
       user: '555',
       alive: 'test_string',
     });
+    done();
+  });
+
+  it('singeCreateAccessToken', async (done) => {
+    let startFetching = 0;
+    const fn = (msg: string) => {
+      if (msg.includes('start fetching')) {
+        startFetching++;
+      }
+    };
+    BridgePlus.addLogCallback(fn);
+    defaultAccessTokenFetcher.dropAll();
+    await Promise.all([
+      BridgePlus.api<{response: {id: number}}>('users.getGetById', { id: 1 }, ''),
+      BridgePlus.api<{response: {id: number}}>('users.getGetById', { id: 2 }, ''),
+      BridgePlus.api<{response: {id: number}}>('users.getGetById', { id: 3 }, ''),
+    ]);
+    expect(startFetching).toBe(1);
+    done();
+  });
+
+  it('singeCreateAccessToken and exception', async (done) => {
+    let startFetching = 0;
+    const fn = (msg: string) => {
+      if (msg.includes('start fetching')) {
+        startFetching++;
+      }
+    };
+    BridgePlus.addLogCallback(fn);
+    defaultAccessTokenFetcher.dropAll();
+    try {
+      await Promise.all([
+        BridgePlus.api<{response: {id: number}}>('users.getGetById', { id: 1 }, 'access-fail'),
+        BridgePlus.api<{response: {id: number}}>('users.getGetById', { id: 2 }, 'access-fail'),
+        BridgePlus.api<{response: {id: number}}>('users.getGetById', { id: 3 }, 'access-fail'),
+      ]);
+    } catch (e) {
+
+    }
+    expect(startFetching).toBe(1);
+    await Promise.all([
+      BridgePlus.api<{response: {id: number}}>('users.getGetById', { id: 1 }, ''),
+      BridgePlus.api<{response: {id: number}}>('users.getGetById', { id: 2 }, ''),
+      BridgePlus.api<{response: {id: number}}>('users.getGetById', { id: 3 }, ''),
+    ]);
+    expect(startFetching).toBe(2);
+    await Promise.all([
+      BridgePlus.api<{response: {id: number}}>('users.getGetById', { id: 1 }, ''),
+      BridgePlus.api<{response: {id: number}}>('users.getGetById', { id: 2 }, ''),
+      BridgePlus.api<{response: {id: number}}>('users.getGetById', { id: 3 }, ''),
+    ]);
+    expect(startFetching).toBe(2);
+    done();
+  });
+
+  it('VKWebAppGetUserInfo', async (done) => {
+    const user = await BridgePlus.getUserInfo();
+    expect(user.id).toBe(2050);
     done();
   });
 });

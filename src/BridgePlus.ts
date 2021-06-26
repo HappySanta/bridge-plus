@@ -92,7 +92,11 @@ export class BridgePlus {
    * @returns {Promise}
    */
   static getUserInfo() {
-    return BridgePlus.send('VKWebAppGetUserInfo', {});
+    const contextId = getContextId();
+    return exponentialBackoffAnyError(() => BridgePlus.send('VKWebAppGetUserInfo', {}, contextId), (e) => {
+      BridgePlus.log(`[${contextId}] VKWebAppGetUserInfo retrying`, e.message, e.code, e.type);
+      return false;
+    });
   }
 
   /**
@@ -140,9 +144,10 @@ export class BridgePlus {
    * Для получения токена без дополнительных прав передайте в параметре пустую строку.
    * @param {string} scope - Список прав доступа, перечисленных через запятую. {@url  https://vk.com/dev/permissions}
    * @param {number|null} appId
+   * @param {string} requestId for log only
    * @returns {Promise}
    */
-  static getAuthToken(scope = '', appId?: number) {
+  static getAuthToken(scope = '', appId?: number, requestId?: string) {
     /*
      * На iOS замечен баг: не надо вызывать этот метод дважды надо подождать пока предыдущий завершится
      * поэтому тут очередь запросов
@@ -151,7 +156,7 @@ export class BridgePlus {
       app_id: appId || this.getStartParams().appId,
       scope: scope,
     };
-    return BridgePlus.getRequestTokenQueue().call(() => BridgePlus.send<'VKWebAppGetAuthToken'>('VKWebAppGetAuthToken', params));
+    return BridgePlus.getRequestTokenQueue().call(() => BridgePlus.send<'VKWebAppGetAuthToken'>('VKWebAppGetAuthToken', params, requestId));
   }
 
   static getRequestTokenQueue(): Queue {
@@ -170,14 +175,15 @@ export class BridgePlus {
    * полученный с помощью VKWebAppGetAuthToken {@see getAuthToken}
    * @param {string} method - название метода API. {@url https://vk.com/dev/methods}
    * @param {Object} params - параметры метода v lang access_token и так далее
+   * @param requestId id запроса для логов
    * @returns {Promise}
    */
-  static async callAPIMethod(method: string, params: Record<string, string | number> = {}) {
+  static async callAPIMethod(method: string, params: Record<string, string | number> = {}, requestId?: string) {
     if (params.v === undefined) {
       params.v = BridgePlus.defaultApiVersion;
     }
     if (isApiParams(params)) {
-      return await BridgePlus.send<'VKWebAppCallAPIMethod'>('VKWebAppCallAPIMethod', { method, params });
+      return await BridgePlus.send<'VKWebAppCallAPIMethod'>('VKWebAppCallAPIMethod', { method, params }, requestId);
     } else {
       throw new VkError('API ERROR: #5 no access_token or version (v) passed', VkErrorTypes.API_ERROR);
     }
@@ -200,15 +206,15 @@ export class BridgePlus {
     const appId = BridgePlus.getStartParams().appId;
     const normalizedScope = normalizeScope(scope);
     let lastFetchedToken = '';
-    BridgePlus.log(`api ${method}[${requestId}] start call`, params);
     return await exponentialBackoffForApi<T>(async () => {
+      BridgePlus.log(`[${requestId}] api ${method} start call`, params);
       if (needAccessToken) {
         lastFetchedToken = await defaultAccessTokenFetcher.fetch(normalizedScope, appId, requestId);
         p.access_token = lastFetchedToken;
       }
-      return await BridgePlus.callAPIMethod(method, p) as T;
+      return await BridgePlus.callAPIMethod(method, p, requestId) as T;
     }, (e: any) => {
-      BridgePlus.log(`api ${method}[${requestId}] retry fetch ${e.message}`, e);
+      BridgePlus.log(`[${requestId}] api ${method} failed`, e.message, e.code, e.type);
 
       // Ошибка о том что токен протух, такое бывает когда у пользователя меняется ip
       if (e instanceof VkError && e.code === VK_API_AUTH_FAIL) {
@@ -224,7 +230,14 @@ export class BridgePlus {
         }
       }
       return undefined;
-    });
+    })
+      .then((res) => {
+        BridgePlus.log(`[${requestId}] api ${method} done`);
+        return res;
+      }).catch((e) => {
+        BridgePlus.log(`[${requestId}] api ${method} reject`, e.message, e.code, e.type);
+        throw e;
+      });
   }
 
   /**
@@ -625,23 +638,25 @@ export class BridgePlus {
   /**
    * @param method
    * @param props
+   * @param contextId строка для записи в логи
    * @return {Promise}
    */
-  static send<K extends AnyRequestMethodName>(method: K, props?: RequestProps<K> & RequestIdProp): Promise<K extends AnyReceiveMethodName ? ReceiveData<K> : void> {
-    const contextId = getContextId();
-    BridgePlus.log(method, props, `start context:${contextId}`);
+  // eslint-disable-next-line max-len
+  static send<K extends AnyRequestMethodName>(method: K, props?: RequestProps<K> & RequestIdProp, contextId?: string): Promise<K extends AnyReceiveMethodName ? ReceiveData<K> : void> {
+    const requestId = contextId || getContextId();
+    BridgePlus.log(`[${requestId}] ${method} start`, props);
     const saveStack = new Error('saved error stack');
     return VkBridge.send(method, props)
       .then((res) => {
-        BridgePlus.log(method, props, `done context:${contextId}`);
+        BridgePlus.log(`[${requestId}] ${method} done`, props);
         return res;
       })
       .catch((e) => {
-        BridgePlus.log(method, props, `failed context:${contextId}`);
         const err = castToError(e, method);
         if (!e.stack && err.stack && saveStack.stack) {
           err.stack += `\n${saveStack.stack.substr(saveStack.stack.indexOf('\n') + 1)}`;
         }
+        BridgePlus.log(`[${requestId}] ${method} failed`, props, err.message, err.code, err.type);
         throw err;
       });
   }

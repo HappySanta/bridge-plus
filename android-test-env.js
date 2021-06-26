@@ -1,5 +1,7 @@
 const NodeEnvironment = require('jest-environment-jsdom');
 
+const delay = time => new Promise(resolve => setTimeout(resolve, time));
+
 class CustomEnvironment extends NodeEnvironment {
   constructor(config, context) {
     super(config, context);
@@ -64,6 +66,21 @@ class CustomEnvironment extends NodeEnvironment {
           platform: 'jest-test',
           version: '1.0.0',
         }, getRequestId(args));
+      },
+      VKWebAppGetUserInfo: (args) => {
+        if (!this.VKWebAppGetUserInfoFailed) {
+          this.VKWebAppGetUserInfoFailed = true;
+          return response('VKWebAppGetUserInfoFailed', {
+            'error_type': 'client_error',
+            'error_data': { 'error_code': 3, 'error_reason': 'Connection lost' },
+          }, getRequestId(args));
+        } else {
+          return response('VKWebAppGetUserInfoResult', {
+            'id':2050,
+            'first_name': 'Катя',
+            'last_name': 'Лебедева',
+          }, getRequestId(args));
+        }
       },
       VKWebAppCallAPIMethod: (args) => {
         const data = JSON.parse(args);
@@ -184,10 +201,23 @@ class CustomEnvironment extends NodeEnvironment {
           }, getRequestId(args));
         }
 
-        response('VKWebAppGetAuthTokenResult', {
-          scope: data.scope,
-          access_token: 'test-token-'+Math.random(),
-        }, getRequestId(args));
+        if (data.scope === 'access-fail') {
+          delay(50).then(() => {
+            response('VKWebAppGetAuthTokenFailed', {
+              'request_id': 2,
+              'error_type': 'client_error',
+              'error_data': { 'error_code': 4, 'error_reason': 'User denied' },
+            }, getRequestId(args));
+          })
+          return;
+        }
+
+        delay(50).then(() => {
+          response('VKWebAppGetAuthTokenResult', {
+            scope: data.scope,
+            access_token: 'test-token-'+Math.random(),
+          }, getRequestId(args));
+        })
       },
     };
   }
