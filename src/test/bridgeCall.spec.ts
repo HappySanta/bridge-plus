@@ -183,4 +183,10 @@ describe('bridgeCall', () => {
     expect(user.id).toBe(2050);
     done();
   });
+
+  it('works fine when bridge return more scope than requested', async (done) => {
+    const data = await BridgePlus.api<{response: {id: number}}>('users.getGetById', { id: 4 }, 'more-scopes');
+    expect(data.response.id).toBe(4);
+    done();
+  });
 });

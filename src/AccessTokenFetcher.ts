@@ -1,5 +1,5 @@
 import { BridgePlus } from './BridgePlus';
-import { isEqualScope, trimAccessToken } from './helpers';
+import { isGreatOrEqual, trimAccessToken } from './helpers';
 import { VkError, VkErrorTypes } from './VkError';
 import { USER_ALLOW_NOT_ALL_RIGHTS } from './const';
 import { checkIsVkError, exponentialBackoffForApi } from './backoff';
@@ -36,7 +36,7 @@ export class AccessTokenFetcher {
 
   protected async getToken(scope: string, appId: number, requestId: string) {
     const { access_token, scope: resScope } = await this.fetchWithRetry(scope, appId, requestId);
-    if (!isEqualScope(resScope, scope)) {
+    if (!isGreatOrEqual(scope, resScope)) {
       throw new VkError(`user allow not all scope request: ${scope} receive:${resScope}`, VkErrorTypes.ACCESS_ERROR, USER_ALLOW_NOT_ALL_RIGHTS);
     }
     BridgePlus.log(`[${requestId}] AccessTokenFetcher receive scope: ${scope} token: ${trimAccessToken(access_token)}`);

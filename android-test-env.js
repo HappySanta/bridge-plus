@@ -212,6 +212,14 @@ class CustomEnvironment extends NodeEnvironment {
           return;
         }
 
+        if (data.scope === "more-scopes") {
+          response('VKWebAppGetAuthTokenResult', {
+            scope: data.scope+",friends",
+            access_token: 'test-token-'+Math.random(),
+          }, getRequestId(args));
+          return;
+        }
+
         delay(50).then(() => {
           response('VKWebAppGetAuthTokenResult', {
             scope: data.scope,

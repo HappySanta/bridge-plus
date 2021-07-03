@@ -1,4 +1,13 @@
 
+function isSuperset(set: Set<any>, subset: Set<any>) {
+  for (const elem of subset) {
+    if (!set.has(elem)) {
+      return false;
+    }
+  }
+  return true;
+}
+
 export function isEqualScope(left: any, right: any) {
   /*
    * Возможно иногда не приходят scope с каких-то клиентов
@@ -11,6 +20,22 @@ export function isEqualScope(left: any, right: any) {
     return true;
   }
   return normalizeScope(left) === normalizeScope(right);
+}
+
+export function isGreatOrEqual(request: any, receive: any) {
+  /*
+   * Возможно иногда не приходят scope с каких-то клиентов
+   * в этом случае надеемся что они выданы
+   */
+  if (typeof request !== 'string') {
+    return true;
+  }
+  if (typeof receive !== 'string') {
+    return true;
+  }
+  const requestSet = new Set(normalizeScope(request).split(','));
+  const receiveSet = new Set(normalizeScope(receive).split(','));
+  return isSuperset(receiveSet, requestSet);
 }
 
 export function delay(time: number): Promise<void> {
