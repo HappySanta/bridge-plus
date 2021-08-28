@@ -63,6 +63,6 @@
     "query-string": "^6.13.6"
   },
   "peerDependencies": {
-    "@vkontakte/vk-bridge": "^2.4.1"
+    "@vkontakte/vk-bridge": "^2.4.8"
   }
 }

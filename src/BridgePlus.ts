@@ -75,7 +75,7 @@ export class BridgePlus {
    * @return {boolean}
    */
   static supports(method: string): boolean {
-    return VkBridge.supports(method);
+    return VkBridge.supports(method as any as AnyRequestMethodName);
   }
 
   /**
