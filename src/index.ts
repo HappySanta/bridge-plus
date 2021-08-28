@@ -8,3 +8,4 @@ export * from './backoff';
 export * from './castToError';
 export * from './AccessTokenFetcher';
 export * from './helpers';
+export * from './Stat';

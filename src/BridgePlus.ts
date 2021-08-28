@@ -29,6 +29,7 @@ import { exponentialBackoffAnyError, exponentialBackoffForApi } from './backoff'
 import { VkError, VkErrorTypes } from './VkError';
 import { VK_API_AUTH_FAIL } from './const';
 import { AnyEventName, BridgePlusEventCallback } from './extendedTypes';
+import { defaultStat } from './Stat';
 
 type ApiParams = Record<'access_token' | 'v', string> & Record<string, string | number>;
 
@@ -645,10 +646,12 @@ export class BridgePlus {
   static send<K extends AnyRequestMethodName>(method: K, props?: RequestProps<K> & RequestIdProp, contextId?: string): Promise<K extends AnyReceiveMethodName ? ReceiveData<K> : void> {
     const requestId = contextId || getContextId();
     BridgePlus.log(`[${requestId}] ${method} start`, props);
+    defaultStat.begin(method, props, requestId);
     const saveStack = new Error('saved error stack');
     return VkBridge.send(method, props)
       .then((res) => {
         BridgePlus.log(`[${requestId}] ${method} done`, props);
+        defaultStat.end(method, props, requestId, true);
         return res;
       })
       .catch((e) => {
@@ -657,6 +660,7 @@ export class BridgePlus {
           err.stack += `\n${saveStack.stack.substr(saveStack.stack.indexOf('\n') + 1)}`;
         }
         BridgePlus.log(`[${requestId}] ${method} failed`, props, err.message, err.code, err.type);
+        defaultStat.end(method, props, requestId, false);
         throw err;
       });
   }
