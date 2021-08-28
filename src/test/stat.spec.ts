@@ -10,9 +10,9 @@ describe('stat', () => {
     const data = stat.toPlainObject();
     expect(!!data['VKWebAppGetAuthToken']).toBeTruthy();
     expect(data['VKWebAppGetAuthToken'].count).toBe(1);
-    expect(data['VKWebAppGetAuthToken'].sum).toBeGreaterThanOrEqual(1);
-    expect(data['VKWebAppGetAuthToken'].avg).toBeGreaterThanOrEqual(1);
-    expect(data['VKWebAppGetAuthToken'].max).toBeGreaterThanOrEqual(1);
+    expect(data['VKWebAppGetAuthToken'].sum).toBeGreaterThan(0);
+    expect(data['VKWebAppGetAuthToken'].avg).toBeGreaterThan(0);
+    expect(data['VKWebAppGetAuthToken'].max).toBeGreaterThan(0);
     done();
   });
 
@@ -27,9 +27,9 @@ describe('stat', () => {
     const data = stat.toPlainObject();
     expect(!!data['users.get']).toBeTruthy();
     expect(data['users.get'].count).toBe(2);
-    expect(data['users.get'].sum).toBeGreaterThanOrEqual(4);
-    expect(data['users.get'].avg).toBeGreaterThanOrEqual(3);
-    expect(data['users.get'].max).toBeGreaterThanOrEqual(4);
+    expect(data['users.get'].sum).toBeGreaterThanOrEqual(data['users.get'].avg);
+    expect(data['users.get'].avg).toBeGreaterThan(0);
+    expect(data['users.get'].max).toBeGreaterThan(0);
     done();
   });
 
