@@ -30,6 +30,9 @@ import { VkError, VkErrorTypes } from './VkError';
 import { VK_API_AUTH_FAIL } from './const';
 import { AnyEventName, BridgePlusEventCallback } from './extendedTypes';
 import { defaultStat } from './Stat';
+import { ApiCallConfig, defaultApiCallConfig } from './ApiCallConfig';
+import { BridgeApiParams } from './ApiParams';
+import { BridgeApiScope, isBridgeApiScope } from './BridgeApiScope';
 
 type ApiParams = Record<'access_token' | 'v', string> & Record<string, string | number>;
 
@@ -41,7 +44,8 @@ function isApiParams(x: Record<string, string | number>): x is ApiParams {
 export class BridgePlus {
   static startParams: VkStartParams | null = null;
   static startSearch = '';
-  static defaultApiVersion = '5.103';
+  public static defaultApiVersion = '5.103';
+  public static defaultApiCallConfig: ApiCallConfig = defaultApiCallConfig;
 
   /**
    * Возвращает объект с параметрами запуска приложения
@@ -199,13 +203,20 @@ export class BridgePlus {
    * @throws BridgePlusError
    * @returns {Promise<Object>}
    */
-  static async api<T extends { response: any }>(method: string, params: Record<string, string | number> = {}, scope: string | string[] = ''): Promise<T> {
+  static async api<T extends { response: any }>(method: string, params: BridgeApiParams = {}, scope?: BridgeApiScope | Partial<ApiCallConfig>): Promise<T> {
+    let callConfig = { ...BridgePlus.defaultApiCallConfig };
+    if (typeof scope === 'object' && scope !== null) {
+      callConfig = { ...callConfig, ...scope };
+    }
+    if (isBridgeApiScope(scope)) {
+      callConfig.scope = scope;
+    }
     const requestId = getContextId();
     // Чтобы не портить params потому что мы туда запишем токен
     const p = { ...params };
     const needAccessToken = !p.access_token;
     const appId = BridgePlus.getStartParams().appId;
-    const normalizedScope = normalizeScope(scope);
+    const normalizedScope = normalizeScope(callConfig.scope);
     let lastFetchedToken = '';
     return await exponentialBackoffForApi<T>(async () => {
       BridgePlus.log(`[${requestId}] api ${method} start call`, params);
@@ -215,6 +226,9 @@ export class BridgePlus {
       }
       return await BridgePlus.callAPIMethod(method, p, requestId) as T;
     }, (e: any) => {
+      if (callConfig.retryStrategy === 'none') {
+        return false;
+      }
       BridgePlus.log(`[${requestId}] api ${method} failed`, e.message, e.code, e.type);
 
       // Ошибка о том что токен протух, такое бывает когда у пользователя меняется ip
@@ -229,6 +243,9 @@ export class BridgePlus {
           // то выкидываем ошибку во вне
           return false;
         }
+      }
+      if (callConfig.retryStrategy === 'token-only') {
+        return false;
       }
       return undefined;
     })

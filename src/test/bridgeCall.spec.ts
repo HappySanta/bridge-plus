@@ -74,8 +74,17 @@ describe('bridgeCall', () => {
   });
 
   it('call api method with #5 error', async (done) => {
+    let apiWasRepeatCall = 0;
+    BridgePlus.addLogCallback( (msg) => {
+      if (msg.includes('retry fetch')) {
+        // 1 раз такое сообщение будет получено
+        // но повтора запроса не будет
+        apiWasRepeatCall++;
+      }
+    } );
     const { response: user } = await BridgePlus.api<{response: {id: number}}>('users.getGetByIdFailAuth', { id: 666 }, '');
     expect(user.id).toBe(666);
+    expect(apiWasRepeatCall).toBeLessThanOrEqual(1);
     done();
   });
 

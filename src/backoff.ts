@@ -16,7 +16,7 @@ export function checkErrorIsSoftApiError(e: VkError): boolean {
 
 /**
  * @param fn
- * @param onError если вернет true но будет повтор запроса если false то не будет
+ * @param onError если вернет true то будет повтор запроса если false то не будет
  * undefined -- будет повтор запроса если это ошибка сети или лоайтовый код ошибки
  * если undefined то будет использована стандартная логика
  */

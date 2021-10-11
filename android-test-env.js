@@ -16,6 +16,12 @@ class CustomEnvironment extends NodeEnvironment {
 
     let failAuthDropToken = false;
 
+    this.global.window.mockBridgeCleanUp = () => {
+      failAuthDropToken = false;
+      this.failed_getGetByIdFailNetwork = false;
+      this.failed = false;
+    }
+
     const getRequestId = args => {
       const x = JSON.parse(args);
       return x.request_id;
