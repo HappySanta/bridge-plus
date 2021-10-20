@@ -8,7 +8,7 @@ export class AccessTokenFetcher {
   private cache: Record<string, string> = {};
   private readonly promiseCache: Record<string, Promise<string>> = {};
 
-  public async fetch(scope: string, appId: number, requestId: string): Promise<string> {
+  public async fetch(scope: string, appId: number, requestId: string, retryStrategy: 'none'|'default'|'token-only' = 'default'): Promise<string> {
     const key = `${scope}-${appId}`;
     const cachedToken = this.cache[key];
     if (cachedToken) {
@@ -20,7 +20,7 @@ export class AccessTokenFetcher {
       return cachedPromise;
     }
 
-    this.promiseCache[key] = this.getToken(scope, appId, requestId)
+    this.promiseCache[key] = this.getToken(scope, appId, requestId, retryStrategy)
       .then((access_token) => {
         delete this.promiseCache[key];
         this.cache[key] = access_token;
@@ -34,8 +34,8 @@ export class AccessTokenFetcher {
     return this.promiseCache[key];
   }
 
-  protected async getToken(scope: string, appId: number, requestId: string) {
-    const { access_token, scope: resScope } = await this.fetchWithRetry(scope, appId, requestId);
+  protected async getToken(scope: string, appId: number, requestId: string, retryStrategy: 'none'|'default'|'token-only' = 'default') {
+    const { access_token, scope: resScope } = await this.fetchWithRetry(scope, appId, requestId, retryStrategy);
     if (!isGreatOrEqual(scope, resScope)) {
       throw new VkError(`user allow not all scope request: ${scope} receive:${resScope}`, VkErrorTypes.ACCESS_ERROR, USER_ALLOW_NOT_ALL_RIGHTS);
     }
@@ -60,16 +60,20 @@ export class AccessTokenFetcher {
     this.cache = {};
   }
 
-  public async fetchWithRetry(scope: string, appId: number, requestId = '') {
+  public async fetchWithRetry(scope: string, appId: number, requestId = '', retryStrategy: 'none'|'default'|'token-only' = 'default') {
     return await exponentialBackoffForApi(async () => {
       BridgePlus.log(`[${requestId}] AccessTokenFetcher start fetching scope: ${scope}`);
       return await BridgePlus.getAuthToken(scope, appId, requestId);
     }, (e: any) => {
-      BridgePlus.log(`[${requestId}] AccessTokenFetcher failed: scope:${scope}`, e.message, e.code, e.type);
-      if (checkIsVkError(e)) {
-        return e.type !== VkErrorTypes.ACCESS_ERROR;
+      if (retryStrategy === 'default') {
+        BridgePlus.log(`[${requestId}] AccessTokenFetcher failed: scope:${scope}`, e.message, e.code, e.type);
+        if (checkIsVkError(e)) {
+          return e.type !== VkErrorTypes.ACCESS_ERROR;
+        }
+        return undefined;
+      } else {
+        return false;
       }
-      return undefined;
     });
   }
 }

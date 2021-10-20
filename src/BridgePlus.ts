@@ -99,8 +99,12 @@ export class BridgePlus {
   static getUserInfo() {
     const contextId = getContextId();
     return exponentialBackoffAnyError(() => BridgePlus.send('VKWebAppGetUserInfo', {}, contextId), (e) => {
-      BridgePlus.log(`[${contextId}] VKWebAppGetUserInfo retrying`, e.message, e.code, e.type);
-      return false;
+      if (BridgePlus.defaultApiCallConfig.retryStrategy === 'default') {
+        BridgePlus.log(`[${contextId}] VKWebAppGetUserInfo retrying`, e.message, e.code, e.type);
+        return false;
+      } else {
+        return true;
+      }
     });
   }
 
@@ -221,7 +225,7 @@ export class BridgePlus {
     return await exponentialBackoffForApi<T>(async () => {
       BridgePlus.log(`[${requestId}] api ${method} start call`, params);
       if (needAccessToken) {
-        lastFetchedToken = await defaultAccessTokenFetcher.fetch(normalizedScope, appId, requestId);
+        lastFetchedToken = await defaultAccessTokenFetcher.fetch(normalizedScope, appId, requestId, callConfig.retryStrategy);
         p.access_token = lastFetchedToken;
       }
       return await BridgePlus.callAPIMethod(method, p, requestId) as T;
@@ -590,8 +594,12 @@ export class BridgePlus {
    */
   static storageGet(keys: string[]) {
     return exponentialBackoffAnyError(() => BridgePlus.send('VKWebAppStorageGet', { keys }), (e) => {
-      BridgePlus.log('VKWebAppStorageGetFailed retrying', e);
-      return false;
+      if (BridgePlus.defaultApiCallConfig.retryStrategy === 'default') {
+        BridgePlus.log('VKWebAppStorageGetFailed retrying', e);
+        return false;
+      } else {
+        return true;
+      }
     });
   }
 
@@ -603,8 +611,12 @@ export class BridgePlus {
    */
   static storageSet(key: string, value: string) {
     return exponentialBackoffAnyError(() => BridgePlus.send('VKWebAppStorageSet', { key, value }), (e) => {
-      BridgePlus.log('VKWebAppStorageSetFailed retrying', e);
-      return false;
+      if (BridgePlus.defaultApiCallConfig.retryStrategy === 'default') {
+        BridgePlus.log('VKWebAppStorageSetFailed retrying', e);
+        return false;
+      } else {
+        return true;
+      }
     });
   }
 
@@ -615,8 +627,12 @@ export class BridgePlus {
    */
   static storageGetKeys(count = 20, offset = 0) {
     return exponentialBackoffAnyError(() => BridgePlus.send('VKWebAppStorageGetKeys', { count, offset }), (e) => {
-      BridgePlus.log('VKWebAppStorageGetKeysFailed retrying', e);
-      return false;
+      if (BridgePlus.defaultApiCallConfig.retryStrategy === 'default') {
+        BridgePlus.log('VKWebAppStorageGetKeysFailed retrying', e);
+        return false;
+      } else {
+        return true;
+      }
     });
   }
 

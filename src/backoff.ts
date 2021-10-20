@@ -45,13 +45,16 @@ export async function exponentialBackoffForApi<T>(fn: () => Promise<T>, onError?
   });
 }
 
+/**
+ * onError если вернет false то будет повтор запроса иначе не будет
+ */
 export async function exponentialBackoffAnyError<T>(fn: () => Promise<T>, onError?: (e: any) => boolean): Promise<T> {
   return await backOff(fn, {
     delayFirstAttempt: false,
     jitter: 'full',
     maxDelay: 10000,
-    numOfAttempts: 10,
-    startingDelay: 500,
+    numOfAttempts: 3,
+    startingDelay: 200,
     timeMultiple: 2,
     retry: (e: any) => {
       return !(onError && onError(e));
